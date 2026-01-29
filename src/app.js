@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import { CORS_OPTIONS } from "./constatnts.js";
-
 const app = express();
 
 app.use(express.json({ limit: "16kb" }));
