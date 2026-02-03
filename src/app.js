@@ -13,4 +13,14 @@ app.use(express.static("public"));
 import userRouter from "./routes/user.route.js";
 
 app.use("/api/v1", userRouter);
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+
+  console.info("🚀 ~ err:", err);
+  return res.status(statusCode).json({
+    success: false,
+    message: err.message, // 👈 this is your message
+    errors: err.errors || [],
+  });
+});
 export default app;
