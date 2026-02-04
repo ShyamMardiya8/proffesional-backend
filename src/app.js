@@ -19,7 +19,7 @@ app.use((err, req, res, next) => {
   console.info("🚀 ~ err:", err);
   return res.status(statusCode).json({
     success: false,
-    message: err.message, // 👈 this is your message
+    message: err.message,
     errors: err.errors || [],
   });
 });

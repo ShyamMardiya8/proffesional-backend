@@ -24,10 +24,18 @@ const userService = {
       const userData = await User.findOne({
         $or: [{ userName }, { email }],
       });
-      console.info("🚀 ~ userData:", userData);
       return userData;
     } catch (error) {
       console.error(error.message);
+    }
+  },
+  findUserByEmail: async (userEmail) => {
+    try {
+      const { email } = userEmail;
+      const isEmailExisting = await User.findOne({ email: email });
+      return isEmailExisting;
+    } catch (error) {
+      console.log(error.message);
     }
   },
 };
