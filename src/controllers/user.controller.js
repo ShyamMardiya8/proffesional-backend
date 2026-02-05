@@ -83,7 +83,43 @@ const usersController = {
     const { accessToken, refreshToken } =
       await generateAccessAndRefreshToken(idForTokenGeneration);
 
-    return res.status(201).cookie
+    const options = {
+      httpOnly: true,
+      secure: true,
+    };
+    return res
+      .status(201)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", refreshToken, options)
+      .json(
+        new ApiResponse(200, "User logged in Successfully", {
+          user: findUserByEmail,
+          accessToken,
+          refreshToken,
+        })
+      );
+  }),
+  logOutUser: asyncHandler(async (req, res) => {
+    const user = await User.findByIdAndUpdate(req.user?._id, {
+      $set: {
+        refreshToken: undefined,
+      },
+    });
+
+    if (!user) {
+      throw new ApiError(400, "something went wrong while log out");
+    }
+
+    const options = {
+      httpOnly: true,
+      secure: true,
+    };
+
+    return res
+      .status(200)
+      .clearCookie("accessToken", options)
+      .clearCookie("refreshToken", options)
+      .json(new ApiResponse(200, "User logged out successfully", {}));
   }),
 };
 
