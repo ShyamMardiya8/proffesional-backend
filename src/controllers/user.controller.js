@@ -121,6 +121,36 @@ const usersController = {
       .clearCookie("refreshToken", options)
       .json(new ApiResponse(200, "User logged out successfully", {}));
   }),
+  refreshToken: asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      throw new ApiError(401, "user is invalid");
+    }
+
+    const { accessToken, refreshToken } =
+      await generateAccessAndRefreshToken(user);
+
+    const options = {
+      httpOnly: true,
+      secure: true,
+    };
+
+    return res
+      .status(201)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", refreshToken, options)
+      .json(
+        new ApiResponse(
+          200,
+          {
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+          },
+          "token is generated successfully"
+        )
+      );
+  }),
 };
 
 export default usersController;
