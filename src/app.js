@@ -7,10 +7,12 @@ app.use(express.json({ limit: "16kb" }));
 app.use(cors(CORS_OPTIONS));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
+app.use(cookieParser());
 
 // import routers
 
 import userRouter from "./routes/user.route.js";
+import cookieParser from "cookie-parser";
 
 app.use("/api/v1", userRouter);
 app.use((err, req, res, next) => {
