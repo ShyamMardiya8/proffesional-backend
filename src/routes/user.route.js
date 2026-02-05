@@ -24,4 +24,6 @@ router.route("/login").post(usersController.loginUser);
 
 router.route("/logout").post(verifyJwt, usersController.logOutUser);
 
+router.route("/refresh").post(verifyJwt, usersController.refreshToken);
+
 export default router;
