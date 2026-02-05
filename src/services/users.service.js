@@ -32,6 +32,7 @@ const userService = {
   findUserByEmail: async (userEmail) => {
     try {
       const { email } = userEmail;
+      console.info("🚀 ~ email:", email);
       const isEmailExisting = await User.findOne({ email: email });
       return isEmailExisting;
     } catch (error) {

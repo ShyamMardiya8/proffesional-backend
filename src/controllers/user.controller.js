@@ -69,11 +69,11 @@ const usersController = {
       throw new ApiError(400, "all field is required");
     }
 
-    const findUserByEmail = await userService.findUserByEmail(email);
+    const findUserByEmail = await userService.findUserByEmail({ email });
     if (!findUserByEmail) {
       throw new ApiError(404, "user is not existed, register first");
     }
-
+    console.log(findUserByEmail, "findUserByEmail");
     const isPasswordValid = await findUserByEmail.isPasswordCorrect(password);
     if (!isPasswordValid) {
       throw new ApiError(400, "password is not valid");
