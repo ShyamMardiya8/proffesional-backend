@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 
 export const verifyJwt = asyncHandler(async (req, _, next) => {
   try {
+    debugger;
     const token =
       req.cookies.accessToken ||
       req.headers("Authorization")?.replace("Bearer ", "");
@@ -13,9 +14,12 @@ export const verifyJwt = asyncHandler(async (req, _, next) => {
       throw new ApiError("UnAuthorization request");
     }
 
-    const decodedToken = await jwt.sign(token, process.env.ACCESS_TOKEN_SECRET);
+    const decodedToken = await jwt.verify(
+      token,
+      process.env.ACCESS_TOKEN_SECRET
+    );
 
-    const user = await User.findById({ _id: decodedToken?._id }).select(
+    const user = await User.findById({ _id: decodedToken?.id }).select(
       "-password -refreshToken"
     );
 
