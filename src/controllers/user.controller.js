@@ -131,6 +131,14 @@ const usersController = {
     const { accessToken, refreshToken } =
       await generateAccessAndRefreshToken(user);
 
+    const updatedRefreshToken = await User.findByIdAndUpdate(user?._id, {
+      $set: {
+        refreshToken: refreshToken,
+      },
+    });
+
+    await updatedRefreshToken.save({ validateBeforeSave: false });
+
     const options = {
       httpOnly: true,
       secure: true,
