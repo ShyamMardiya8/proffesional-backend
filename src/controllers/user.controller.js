@@ -62,6 +62,7 @@ const usersController = {
       .status(201)
       .json(new ApiResponse(200, "user registered successfully", response));
   }),
+
   loginUser: asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
@@ -99,6 +100,7 @@ const usersController = {
         })
       );
   }),
+
   logOutUser: asyncHandler(async (req, res) => {
     const user = await User.findByIdAndUpdate(req.user?._id, {
       $set: {
@@ -121,6 +123,7 @@ const usersController = {
       .clearCookie("refreshToken", options)
       .json(new ApiResponse(200, "User logged out successfully", {}));
   }),
+
   refreshToken: asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id);
 
@@ -158,6 +161,49 @@ const usersController = {
           "token is generated successfully"
         )
       );
+  }),
+
+  changeUserPassword: asyncHandler(async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+    const user = await User.findById(req.user?._id);
+
+    const isOldPasswordCorrect = user.isPasswordCorrect(oldPassword);
+
+    if (!isOldPasswordCorrect) {
+      throw new ApiError("Old password is not correct");
+    }
+
+    user.password = newPassword;
+
+    await user.save({ validateBeforeSave: false });
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, "password changed successfully", {}));
+  }),
+
+  updateAvatar: asyncHandler(async (req, res) => {
+    const avatar = req.files?.avatar[0]?.path;
+    const userId = req.user?._id;
+
+    if (!avatar) {
+      throw new ApiError(400, "avatar is required");
+    }
+
+    const avatarUrl = await uploadFileCloudinary(avatar)?.url;
+    if (!avatarUrl) {
+      throw new ApiError("Error While upload avatar");
+    }
+
+    await User.findByIdAndUpdate(userId, {
+      $set: {
+        avatarUrl,
+      },
+    }).select("-password");
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "avatar updated successfully"));
   }),
 };
 
