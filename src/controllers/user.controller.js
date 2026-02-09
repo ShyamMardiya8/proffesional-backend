@@ -205,6 +205,79 @@ const usersController = {
       .status(200)
       .json(new ApiResponse(200, "avatar updated successfully"));
   }),
+
+  userSubscription: asyncHandler(async (req, res) => {
+    const { userName } = req.params;
+
+    if (!userName?.trim()) {
+      throw new ApiError(400, "userName is Missing");
+    }
+
+    const channel = await User.aggregate([
+      {
+        $match: {
+          userName: userName?.lowerCase(),
+        },
+      },
+      {
+        $lookup: {
+          from: "subscriptions",
+          localField: "_id",
+          foreignField: "subscriber",
+          as: "subscriber",
+        },
+      },
+      {
+        $lookup: {
+          from: "subscriptions",
+          localField: "_id",
+          foreignField: "channel",
+          as: "subscriberToChannel",
+        },
+      },
+      {
+        $addFields: {
+          totalSubscriber: {
+            $size: "$subscriber",
+          },
+          subscribeToChannel: {
+            $size: "$subscriberToChannel",
+          },
+          isSubscribed: {
+            $cond: {
+              if: {
+                $in: [req.user?._id, "$subscriber.subscriber"],
+              },
+              then: true,
+              else: false,
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          fullName: 1,
+          email: 1,
+          coverImage: 1,
+          avatar: 1,
+          subscribeToChannel: 1,
+          totalSubscriber: 1,
+          isSubscribed: 1,
+        },
+      },
+    ]);
+
+    if (!channel?.length) {
+      throw new ApiError(
+        400,
+        "channel details issue while getting subscriber and subscribed total Channels"
+      );
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "fetched sucessfully", channel));
+  }),
 };
 
 export default usersController;
